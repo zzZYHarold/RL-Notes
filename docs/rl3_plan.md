@@ -10,7 +10,7 @@
 | 3B Model-Free RL | MC Prediction → TD(0) → SARSA → Q-learning → CS188 Q-learning |
 | 3C Experiments | GridWorld：VI vs Q-learning；Random Walk：MC vs TD(0)；CliffWalking：SARSA vs Q-learning |
 
-学习时可以先集中写，用户要求整理时再按实际内容拆分。环境放在 `rl_tabular/envs/gridworld.py`，DP 函数与 Step 8 对比放在 `rl_tabular/planning.py`。各实验的参数、预算和验收指标到对应小节再确定。
+学习时可以先集中写，用户要求整理时再按实际内容拆分。环境放在 `rl_tabular/envs/gridworld.py`，DP 函数与 Step 8 对比放在 `rl_tabular/model_based_planning.py`，3B 算法放在 `rl_tabular/model_free_planning.py`。各实验的参数、预算和验收指标到对应小节再确定。
 
 ## 当前 GridWorld 的固定约定
 
@@ -44,15 +44,24 @@ row 2    S3    S4    S5
 
 ## 接口逐步增加
 
-`gridworld.py` 只保留 `GridWorld` 的状态、动作、终止和转移规则。Bellman backup、随机策略、策略评估、贪心动作提取与策略改进集中在 `planning.py`；原来的练习 V-table 放在该文件末尾示例中。
+`gridworld.py` 定义 `GridWorld` 的状态、动作、终止和转移规则。Bellman backup、随机策略、策略评估、贪心动作提取与策略改进集中在 `model_based_planning.py`。练习 V-table 放在该文件末尾的示例中。
 
 `policy_evaluation` 用策略函数给出的动作概率计算加权期望；`deterministic_policy_evaluation` 根据 `policy[state]` 选择一个动作，直接计算 Q。两者都用旧 V 读取、向新表写入，终点价值保持 0。确定性版本按用户补充的 P2 片段补齐了初始化、收敛判断及返回值；P1 单轮 sweep 已被完整循环覆盖，不另外保存。
 
 Step 8 用同一个 `gamma=0.9` 的 GridWorld 求解两次。Policy Iteration 先评估当前策略，再按各状态的 Q 值更新动作，直到策略稳定。Value Iteration 每轮用旧价值表计算各状态的最大 Q 值，最后从求得的价值表提取策略。两种方法在当前地图的六个非终点状态都选了相同动作。存在多个最优动作时，策略字典是否相等还取决于并列时的选择。
 
-推进到采样交互时，再增加会话中建议的 `reset()`、`step(action)`、`get_states()`、`get_actions(state)`。返回值、起点、随机种子及终止后调用行为届时明确；当前不提前定义一套框架。
+DP 通过 `transitions()` 读取转移模型。3B 的 MC 接收完整的 `(state, reward)` episode，TD(0) 接收按时间顺序排列的 `(state, reward, next_state, done)`。SARSA 和 Q-learning 从 `reset()` 获取起点，并用 `step(action)` 获取 `(next_state, reward, done)`。当前 GridWorld 的采样接口留待实际对比实验确定。
 
-DP 能读取转移模型，MC、TD、SARSA、Q-learning 通过采样交互获得经验。统一环境概念不意味着 model-free 算法可以直接查询模型。
+## 3B 的更新目标
+
+| 算法 | target | 被更新的旧值 |
+| --- | --- | --- |
+| First-Visit MC | 从该状态首次出现起计算的折扣回报 $G_t$ | $V(S_t)$ |
+| TD(0) | $R_{t+1}+\gamma V(S_{t+1})$ | $V(S_t)$ |
+| SARSA | $R_{t+1}+\gamma Q(S_{t+1},A_{t+1})$，其中 $A_{t+1}$ 是实际选中的动作 | $Q(S_t,A_t)$ |
+| Q-learning | $R_{t+1}+\gamma\max_a Q(S_{t+1},a)$ | $Q(S_t,A_t)$ |
+
+各算法按 `旧值 + alpha * (target - 旧值)` 更新。后三种算法在 `done=True` 时把 target 设为当步奖励。
 
 ## 3A 的核心检查
 

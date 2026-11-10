@@ -5,31 +5,29 @@
 ## 当前状态
 
 - 模块：RL-3 Tabular RL Lab。
-- 阶段：3A Planning / DP。
-- 当前进度已接到 Step 8，在同一张 GridWorld 上比较 Policy Iteration 和 Value Iteration。
-- 环境：`rl_tabular/envs/gridworld.py`，保留原状态、动作、奖励、终止和转移规则。
-- 当前学习文件为 `rl_tabular/planning.py`。用户已写入 `value_iteration()` 和 `extract_policy()`。本轮复用已有评估与改进函数补上 `policy_iteration()`，从全 `UP` 的策略开始，返回稳定策略及其价值。达到 10,000 轮仍未稳定则报错。
-- `print_policy()` 放在求解函数之后。文件末尾的 `__main__` 使用同一个 `GridWorld(gamma=0.9)` 运行 PI 和 VI，打印策略网格并比较动作字典。
-- 原示例 V-table 移到 `planning.py` 的运行示例中；P2 补为 `deterministic_policy_evaluation`。P1 是现有循环中的单轮 sweep，经用户说明后省略重复代码。
-- 已修正辅助函数作为类方法却重复传入 `env` 的调用错误，统一为普通函数；没有改变 Bellman 更新式、收敛阈值或动作并列时的选择顺序。
-- 实际进度以用户说明和当时的本地内容为准，旧分享快照不代表最新进度；不自动判定用户已掌握。
+- 阶段：3B Model-Free Implementation 本地代码整理完成。
+- 3A 代码位于 `rl_tabular/model_based_planning.py`。Step 8 在同一张 GridWorld 上比较 PI 和 VI。
+- 3B 代码位于 `rl_tabular/model_free_planning.py`，已有 First-Visit MC、TD(0)、ε-greedy、SARSA 和 Q-learning。本轮为函数补充数据格式和采样接口说明，并增加手算测试。
+- 环境 `rl_tabular/envs/gridworld.py` 提供 DP 用的 `transitions()`。控制算法通过两步测试环境验证 `reset()` 和 `step(action)` 的交互。
 
 ## 当前工作流
 
 - 学习时先在一个文件里继续写，不预建后续算法文件或空目录。
-- 整理后可继续在 `planning.py` 学习和追加代码，不要求每学一个算法就新建文件。
+- 按当前学习内容在已有模块中追加代码，不要求每学一个算法就新建文件。
 - 用户明确要求整理时，助手先读实际代码，再按内容决定最小必要拆分，并同步调用与验证。
 - 重复、等价或被完整实现覆盖的过渡片段，说明后可以省略，不逐段机械留存。
 
 ## 下一次从这里继续
 
-当前学习内容到 Step 8。后续按用户提供的学习内容推进。
+后续按用户提供的学习内容推进。进入 3C 时再确定 GridWorld 的采样接口和实验参数。路线里的 CS188 Q-learning 完成情况尚未核对。
 
 完整学习顺序见 `docs/rl3_plan.md`，路线不再绑定预建文件。
 
 ## 验证记录
 
-2026-11-10 用已有 `.venv` 运行模块示例和 7 项单元测试。PI 与 VI 在六个非终点状态的动作一致，程序输出 `Same policy: True`。测试还核对了两个手算价值、终点价值和三行策略网格。
+2026-11-10 整理 3B 后，用已有 `.venv` 运行 `python -B -m unittest discover -s tests -v`，10 项测试全部通过。新增的 3 项检查覆盖 First-Visit MC、TD(0) 的终点与非终点 target，以及同一两步环境下 SARSA 和 Q-learning 的不同 target。测试固定动作序列，验证范围为更新规则。
+
+2026-11-10 用 `python -B -X utf8 -m rl_tabular.model_based_planning` 重跑 Step 8。PI 与 VI 在六个非终点状态的动作一致，程序输出 `Same policy: True`。
 
 历史：首次初始化建立了预留骨架；用户使用后认为文件过多，现改为单文件学习、之后按需整理。
 
@@ -38,7 +36,7 @@
 2026-11-03 整理验证通过：
 
 - 使用已有 `.venv` 运行 `python -B -m unittest discover -s tests -v`，6 项测试全部通过，覆盖手算转移、非法输入、terminal reward、单轮同步更新、随机策略 Bellman 固定点、确定性策略解析值及策略改进。
-- `python -B -m rl_tabular.planning` 示例运行成功；单独导入模块无输出。
+- 当时的 3A 模块示例运行成功，单独导入模块无输出。
 - 对照整理前快照，环境部分 AST 未变，32 组状态—动作转移完全一致，原练习 V-table 数值保留。
 - 文档本地链接、UTF-8、Python LF 行尾、无空 Python 占位文件及 `git diff --check` 检查通过。
 

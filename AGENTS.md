@@ -2,14 +2,14 @@
 
 ## 项目定位
 
-这是强化学习代码实操学习仓库。当前模块是 RL-3 Tabular RL Lab，当前阶段为 3A Planning / DP。先读 `README.md`、`TASK.md` 和 `docs/rl3_plan.md`，再处理具体任务。
+这是 RL-3 Tabular RL Lab 强化学习代码实操仓库。先读 `README.md`、`TASK.md` 和 `docs/rl3_plan.md`，再处理具体任务。
 
 ## 学习方式
 
 - 中文优先解释，保留算法、变量、公式和接口的 English 名称。
 - 按用户当前学习步骤推进。默认给出小步实现、公式对应和验证，不主动一次写完后续算法；用户明确要求完整实现时，完成其指定范围。
 - 默认采用“先在一个文件里学习和实现，用户要求后再整理”的工作流。不预先创建未来算法的空文件、空目录或包骨架。
-- 用户不需要判断代码该放哪个模块。环境、Bellman backup、策略和算法可以暂时写在同一个文件中。目前环境在 `rl_tabular/envs/gridworld.py`，DP 函数和 Step 8 对比集中在 `rl_tabular/planning.py`。
+- 用户不需要判断代码该放哪个模块。环境和算法可以暂时写在同一个文件中。目前环境在 `rl_tabular/envs/gridworld.py`，3A 和 3B 的算法分别在 `rl_tabular/model_based_planning.py` 和 `rl_tabular/model_free_planning.py`。
 - 用户仍在推进学习时，不主动拆文件、移动函数、调整类归属或做结构重构；不要因为学到新算法就要求换文件。
 - 每个核心更新语句都要能反向对应数学公式。说明 target、旧值、更新后值各是什么。
 - 保留用户的练习、注释、推导和失败结果；修正问题时说明原因，避免直接覆盖其思考过程。
@@ -37,7 +37,7 @@
 - DP 使用 `transitions(state, action)` 访问模型；model-free 算法通过采样交互学习，不能调用模型偷看期望。
 - Synchronous backup 的一轮全部读取同一份旧 value table，避免误写成原地更新。
 - terminal reward 在进入终点的转移上领取，terminal 的未来价值为 0，避免重复计算奖励。
-- `reset/step/get_states/get_actions` 的具体签名尚未确定，推进到采样接口时再约定，不提前声称兼容 Gymnasium。
+- SARSA 和 Q-learning 接收的环境用 `reset()` 返回初始状态，用 `step(action)` 返回 `(next_state, reward, done)`。动作序列由调用者传入。当前 `GridWorld` 提供的是 3A 的 `transitions()` 接口。
 
 ## 验证与交接
 

@@ -1,8 +1,8 @@
 # ReinforcementLearning
 
-用于学习强化学习代码实操。目前进行 **RL-3：Tabular RL Lab**，处于 **3A Planning / DP**。
+用于学习强化学习代码实操。目前已整理 **RL-3A Planning / DP** 和 **RL-3B Model-Free Implementation** 的本地实现。
 
-采用 **先在一个文件里写，之后按需整理** 的学习方式。你不用提前判断是否应该分文件。本轮按你的要求，把已有内容整理成环境与 DP 函数两份。
+采用 **先集中写，之后按需整理** 的学习方式。目前按环境、model-based 和 model-free 组织已有代码。
 
 ## 目录
 
@@ -15,9 +15,11 @@ ReinforcementLearning/
 ├── rl_tabular/
 │   ├── envs/
 │   │   └── gridworld.py      # GridWorld 的状态、动作、转移与奖励
-│   └── planning.py          # Bellman backup、策略评估、PI / VI 与 Step 8 对比
+│   ├── model_based_planning.py  # 3A 的策略评估、PI / VI 与 Step 8 对比
+│   └── model_free_planning.py   # 3B 的 MC、TD(0)、SARSA 和 Q-learning
 └── tests/
-    └── test_planning.py     # 手算、同步更新、收敛和策略改进检查
+    ├── test_planning.py            # 3A 检查
+    └── test_model_free_planning.py # 3B 手算轨迹检查
 ```
 
 `.venv`、`.idea` 和根目录的隐藏配置文件继续保留。
@@ -25,19 +27,19 @@ ReinforcementLearning/
 ## 从哪里开始
 
 1. 阅读 [当前任务](TASK.md)，确定这次只推进哪一步。
-2. 在 [planning.py](rl_tabular/planning.py) 末尾运行 Step 8，对照 PI 和 VI 求得的策略。
-3. 用手算例子和小测试验证，再记录进度。
+2. 运行 [3A 模块](rl_tabular/model_based_planning.py) 的 Step 8，比较 PI 和 VI 求得的策略。
+3. 对照 [3B 模块](rl_tabular/model_free_planning.py) 的函数说明和[手算测试](tests/test_model_free_planning.py)，检查每种算法的更新目标。
 
-`planning.py` 包含两种策略评估、策略改进、Policy Iteration 和 Value Iteration。Step 8 用 `print_policy()` 在同一个 GridWorld 上显示两种算法的动作、墙与终点奖励，并比较策略字典。
+`model_based_planning.py` 包含两种策略评估、策略改进、Policy Iteration 和 Value Iteration。Step 8 用 `print_policy()` 在同一个 GridWorld 上显示两种算法的动作、墙与终点奖励，并比较策略字典。
 
 两种策略评估的输入不同：`policy_evaluation(env, policy)` 接收返回动作概率字典的函数；`deterministic_policy_evaluation(env, policy)` 接收 `{state: action}` 字典，可与 `policy_improvement` 配合。
 
-辅助函数现在是普通函数，例如 `q_from_v(env, V, state, action)`，不再通过 `env.q_from_v(...)` 调用。原来的示例 `V_table` 移到了 `planning.py` 末尾的可运行示例中。
+示例 `V_table` 和 Bellman backup 的演示位于 `model_based_planning.py` 末尾。3B 的 MC 和 TD(0) 读取已采样的数据，SARSA 和 Q-learning 通过 `reset()` 和 `step(action)` 采样。当前 GridWorld 提供 `transitions()`，3B 的控制测试使用两步测试环境。
 
 在项目根目录运行示例与测试：
 
 ```powershell
-.\.venv\Scripts\python.exe -X utf8 -m rl_tabular.planning
+.\.venv\Scripts\python.exe -X utf8 -m rl_tabular.model_based_planning
 .\.venv\Scripts\python.exe -m unittest discover -s tests -v
 ```
 

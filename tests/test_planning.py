@@ -3,7 +3,7 @@ from contextlib import redirect_stdout
 from io import StringIO
 
 from rl_tabular.envs.gridworld import GridWorld
-from rl_tabular.planning import (
+from rl_tabular.model_based_planning import (
     deterministic_policy_evaluation,
     extract_policy,
     greedy_action_from_v,
