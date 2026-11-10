@@ -1,55 +1,50 @@
 # 当前任务与进度
 
-更新日期：2026-11-02
+更新日期：2026-11-10
 
 ## 当前状态
 
 - 模块：RL-3 Tabular RL Lab。
 - 阶段：3A Planning / DP。
-- 本地：完成目录与空文件框架，尚无算法实现。
-- 会话：已经讨论 GridWorld 表示和 `transitions()`；用户完成了三个转移手算题。最新教学内容为 `q_from_v` 和三个 Q 值手算题，尚未在分享快照中看到用户回答。
-- 不将会话中的代码示例视为本地已实现，也不据此判定已掌握完整算法。
+- 当前进度已接到 Step 8，在同一张 GridWorld 上比较 Policy Iteration 和 Value Iteration。
+- 环境：`rl_tabular/envs/gridworld.py`，保留原状态、动作、奖励、终止和转移规则。
+- 当前学习文件为 `rl_tabular/planning.py`。用户已写入 `value_iteration()` 和 `extract_policy()`。本轮复用已有评估与改进函数补上 `policy_iteration()`，从全 `UP` 的策略开始，返回稳定策略及其价值。达到 10,000 轮仍未稳定则报错。
+- `print_policy()` 放在求解函数之后。文件末尾的 `__main__` 使用同一个 `GridWorld(gamma=0.9)` 运行 PI 和 VI，打印策略网格并比较动作字典。
+- 原示例 V-table 移到 `planning.py` 的运行示例中；P2 补为 `deterministic_policy_evaluation`。P1 是现有循环中的单轮 sweep，经用户说明后省略重复代码。
+- 已修正辅助函数作为类方法却重复传入 `env` 的调用错误，统一为普通函数；没有改变 Bellman 更新式、收敛阈值或动作并列时的选择顺序。
+- 实际进度以用户说明和当时的本地内容为准，旧分享快照不代表最新进度；不自动判定用户已掌握。
 
-## 本次框架搭建
+## 当前工作流
 
-- [x] 读取分享会话并记录 RL-3 的约定。
-- [x] 创建阶段目录、空 Python 文件和配套练习位置。
-- [x] 写入 README、AGENTS 和学习路线。
-- [x] 核对目录、空文件与文档链接。
+- 学习时先在一个文件里继续写，不预建后续算法文件或空目录。
+- 整理后可继续在 `planning.py` 学习和追加代码，不要求每学一个算法就新建文件。
+- 用户明确要求整理时，助手先读实际代码，再按内容决定最小必要拆分，并同步调用与验证。
+- 重复、等价或被完整实现覆盖的过渡片段，说明后可以省略，不逐段机械留存。
 
 ## 下一次从这里继续
 
-1. 将会话里已讨论的 GridWorld 表示与 `transitions()` 逐步落实到 `rl_tabular/envs/gridworld.py`。
-2. 在 `tests/` 中补对应手算检查，验证墙、边界、终点、非法输入和转移输出。
-3. 在 `rl_tabular/planning/bellman.py` 中实现 `q_from_v`，验证进入终点时不会重复计算奖励。
-4. 再进入 synchronous Policy Evaluation，每次只推进一个小节。
+当前学习内容到 Step 8。后续按用户提供的学习内容推进。
 
-这些是后续学习任务，本次不填入实现。
-
-## 路线检查表
-
-以下只记录本地实现及其验证；学习理解情况另行确认。
-
-- [ ] 3A：GridWorld MDP
-- [ ] 3A：Bellman backup / 从 V 计算 Q
-- [ ] 3A：Policy Evaluation
-- [ ] 3A：Value Iteration
-- [ ] 3A：Policy Iteration
-- [ ] 3A：CS188 Value Iteration
-- [ ] 3B：MC Prediction
-- [ ] 3B：TD(0) Prediction
-- [ ] 3B：SARSA
-- [ ] 3B：Q-learning
-- [ ] 3B：CS188 Q-learning
-- [ ] 3C：GridWorld，VI vs Q-learning
-- [ ] 3C：Random Walk，MC vs TD(0)
-- [ ] 3C：CliffWalking，SARSA vs Q-learning
+完整学习顺序见 `docs/rl3_plan.md`，路线不再绑定预建文件。
 
 ## 验证记录
 
-2026-11-02 框架检查通过：共 32 个项目文件（不含原有 `.idea/`、`.venv/`），其中 20 个 Python 文件均为 0 字节，5 个 `.gitkeep` 保留预留目录；已检查 UTF-8 编码、Markdown 本地链接及路线中的文件路径。已有 `.venv` 和 `.idea` 仍在原位置。
+2026-11-10 用已有 `.venv` 运行模块示例和 7 项单元测试。PI 与 VI 在六个非终点状态的动作一致，程序输出 `Same policy: True`。测试还核对了两个手算价值、终点价值和三行策略网格。
 
-当前无可运行的算法测试；未安装依赖、未运行训练或实验。空文件检查只证明框架状态，不证明算法正确。
+历史：首次初始化建立了预留骨架；用户使用后认为文件过多，现改为单文件学习、之后按需整理。
+
+2026-11-02 清理：删除 24 个空占位文件、预留说明 `cs188/README.md`，并移除 10 个空目录；当时 `gridworld.py` 内容未改动。
+
+2026-11-03 整理验证通过：
+
+- 使用已有 `.venv` 运行 `python -B -m unittest discover -s tests -v`，6 项测试全部通过，覆盖手算转移、非法输入、terminal reward、单轮同步更新、随机策略 Bellman 固定点、确定性策略解析值及策略改进。
+- `python -B -m rl_tabular.planning` 示例运行成功；单独导入模块无输出。
+- 对照整理前快照，环境部分 AST 未变，32 组状态—动作转移完全一致，原练习 V-table 数值保留。
+- 文档本地链接、UTF-8、Python LF 行尾、无空 Python 占位文件及 `git diff --check` 检查通过。
+
+新增确定性版本与现有随机版本在概率为 1 的同一策略上得到相同结果。保留原停止方式：达到 `theta` 或 `max_iterations` 即返回，不把任意迭代次数下的返回值都称为已收敛。
+
+未新增依赖，未提交或推送改动。以上是软件检查，不自动判定用户已掌握。
 
 ## 上下文来源
 

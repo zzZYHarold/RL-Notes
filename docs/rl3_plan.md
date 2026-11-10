@@ -2,26 +2,15 @@
 
 目标：把已经学过的 tabular RL 公式落实为能解释、能验证的代码，再用小实验比较算法。以下沿用[分享会话](https://chatgpt.com/share/6ae896c1-274c-83ec-bc91-1c8d8a5fcbe9)与用户截图中的路线。
 
-## 文件与阶段
+## 学习阶段（不预先分文件）
 
-| 阶段 | 内容 | 文件或位置 |
-| --- | --- | --- |
-| 3A | GridWorld MDP | `rl_tabular/envs/gridworld.py` |
-| 3A | 从 V 计算 Q / Bellman backup | `rl_tabular/planning/bellman.py` |
-| 3A | Policy Evaluation | `rl_tabular/planning/policy_evaluation.py` |
-| 3A | Value Iteration | `rl_tabular/planning/value_iteration.py` |
-| 3A | Policy Iteration | `rl_tabular/planning/policy_iteration.py` |
-| 3A | CS188 Value Iteration | `cs188/value_iteration/` |
-| 3B | MC Prediction | `rl_tabular/prediction/mc_prediction.py` |
-| 3B | TD(0) Prediction | `rl_tabular/prediction/td0_prediction.py` |
-| 3B | SARSA | `rl_tabular/control/sarsa.py` |
-| 3B | Q-learning | `rl_tabular/control/q_learning.py` |
-| 3B | CS188 Q-learning | `cs188/q_learning/` |
-| 3C | VI vs Q-learning | `rl_tabular/experiments/compare_vi_q_learning.py` |
-| 3C | MC vs TD(0) | `rl_tabular/experiments/compare_mc_td.py` |
-| 3C | SARSA vs Q-learning | `rl_tabular/experiments/compare_sarsa_q_learning.py` |
+| 阶段 | 学习顺序 |
+| --- | --- |
+| 3A Planning / DP | GridWorld → Bellman backup → Policy Evaluation → Value Iteration → Policy Iteration → CS188 Value Iteration |
+| 3B Model-Free RL | MC Prediction → TD(0) → SARSA → Q-learning → CS188 Q-learning |
+| 3C Experiments | GridWorld：VI vs Q-learning；Random Walk：MC vs TD(0)；CliffWalking：SARSA vs Q-learning |
 
-`random_walk.py` 与 `cliff_walking.py` 也已在 `envs/` 中预留，目前不实现。3B 先沿用小 GridWorld，3C 再分别使用 GridWorld、Random Walk、CliffWalking。各实验的参数、预算和验收指标到对应小节再确定。
+学习时可以先集中写，用户要求整理时再按实际内容拆分。环境放在 `rl_tabular/envs/gridworld.py`，DP 函数与 Step 8 对比放在 `rl_tabular/planning.py`。各实验的参数、预算和验收指标到对应小节再确定。
 
 ## 当前 GridWorld 的固定约定
 
@@ -51,11 +40,15 @@ row 2    S3    S4    S5
 | `(2, 2)` | `UP` | `[(1.0, (1, 2), -10.0)]` |
 | `(1, 0)` | `RIGHT` | `[(1.0, (1, 0), -1.0)]` |
 
-这些是后续实现的核对依据，尚未在本地执行验证。
+这些手算转移已纳入 `tests/test_planning.py` 的检查。
 
 ## 接口逐步增加
 
-当前先实现 `GridWorld`、状态集合、动作集合、`is_terminal(state)` 和 `transitions(state, action)`。
+`gridworld.py` 只保留 `GridWorld` 的状态、动作、终止和转移规则。Bellman backup、随机策略、策略评估、贪心动作提取与策略改进集中在 `planning.py`；原来的练习 V-table 放在该文件末尾示例中。
+
+`policy_evaluation` 用策略函数给出的动作概率计算加权期望；`deterministic_policy_evaluation` 根据 `policy[state]` 选择一个动作，直接计算 Q。两者都用旧 V 读取、向新表写入，终点价值保持 0。确定性版本按用户补充的 P2 片段补齐了初始化、收敛判断及返回值；P1 单轮 sweep 已被完整循环覆盖，不另外保存。
+
+Step 8 用同一个 `gamma=0.9` 的 GridWorld 求解两次。Policy Iteration 先评估当前策略，再按各状态的 Q 值更新动作，直到策略稳定。Value Iteration 每轮用旧价值表计算各状态的最大 Q 值，最后从求得的价值表提取策略。两种方法在当前地图的六个非终点状态都选了相同动作。存在多个最优动作时，策略字典是否相等还取决于并列时的选择。
 
 推进到采样交互时，再增加会话中建议的 `reset()`、`step(action)`、`get_states()`、`get_actions(state)`。返回值、起点、随机种子及终止后调用行为届时明确；当前不提前定义一套框架。
 
@@ -69,7 +62,7 @@ $$Q(s,a)=\sum_{s'}T(s,a,s')[R(s,a,s')+\gamma V(s')].$$
 
 实现时逐项对应概率、下一状态、奖励和下一状态价值。进入终点的奖励只计算一次。Synchronous update 每一轮读取旧表、写入新表，完成整轮后再替换。
 
-分享快照停在三个 Q 值练习题，使用以下 V-table 和 `gamma=0.9`：
+此前分享快照的 Q 值练习使用以下 V-table 和 `gamma=0.9`：
 
 ```text
 V(0,0)=2   V(0,1)=5   V(0,2)=0
@@ -77,7 +70,7 @@ V(1,0)=1               V(1,2)=0
 V(2,0)=0   V(2,1)=1   V(2,2)=2
 ```
 
-待回答：`Q((0,0), UP)`、`Q((0,1), RIGHT)`、`Q((2,2), UP)`。这里保留题目，不提前填写答案。
+练习题为：`Q((0,0), UP)`、`Q((0,1), RIGHT)`、`Q((2,2), UP)`。保留题目供回顾，不依据旧快照判断当前是否已回答。
 
 ## 每个小节如何收尾
 
