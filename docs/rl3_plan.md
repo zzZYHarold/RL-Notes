@@ -8,7 +8,9 @@
 | --- | --- |
 | 3A Planning / DP | GridWorld → Bellman backup → Policy Evaluation → Value Iteration → Policy Iteration → CS188 Value Iteration |
 | 3B Model-Free RL | MC Prediction → TD(0) → SARSA → Q-learning → CS188 Q-learning |
-| 3C Experiments | GridWorld：VI vs Q-learning；Random Walk：MC vs TD(0)；CliffWalking：SARSA vs Q-learning |
+| 3C Tabular 收尾 → Linear Function Approximation | 由表格中的单个 Q 值更新，过渡到共享参数 theta 的一次 semi-gradient 更新 |
+
+原先计划的 GridWorld（VI vs Q-learning）、Random Walk（MC vs TD(0)）、CliffWalking（SARSA vs Q-learning）对比实验保留为待安排项。
 
 学习时可以先集中写，用户要求整理时再按实际内容拆分。环境放在 `rl_tabular/envs/gridworld.py`，DP 函数与 Step 8 对比放在 `rl_tabular/model_based_planning.py`，3B 算法放在 `rl_tabular/model_free_planning.py`。各实验的参数、预算和验收指标到对应小节再确定。
 
@@ -62,6 +64,12 @@ DP 通过 `transitions()` 读取转移模型。3B 的 MC 接收完整的 `(state
 | Q-learning | $R_{t+1}+\gamma\max_a Q(S_{t+1},a)$ | $Q(S_t,A_t)$ |
 
 各算法按 `旧值 + alpha * (target - 旧值)` 更新。后三种算法在 `done=True` 时把 target 设为当步奖励。
+
+## 3C 的过渡示例
+
+`rl_tabular/linear_approximation_demo.py` 记录用户提供的单次更新。线性表示为 $Q(s,a;\theta)=\theta^\top\phi(s,a)$，更新为 $\theta\leftarrow\theta+\alpha\delta\phi(s,a)$，其中 $\delta=\text{target}-Q(s,a;\theta)$。
+
+给定 `theta=[2.0, -1.0]`、`features=[2.0, 1.0]`、`alpha=0.1` 和 `target=5.0`，旧预测为 `3.0`，误差为 `2.0`，更新后参数为 `[2.4, -0.8]`，新预测为 `4.0`。target 在本例中直接给定。可执行代码使用标准库，文件末尾保留原 NumPy 代码注释供对照。
 
 ## 3A 的核心检查
 

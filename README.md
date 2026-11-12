@@ -1,6 +1,6 @@
 # ReinforcementLearning
 
-用于学习强化学习代码实操。目前已整理 **RL-3A Planning / DP** 和 **RL-3B Model-Free Implementation** 的本地实现。
+用于学习强化学习代码实操。目前已有 **RL-3A Planning / DP**、**RL-3B Model-Free Implementation**，以及 **RL-3C Tabular 收尾 → Linear Function Approximation** 的过渡示例。
 
 采用 **先集中写，之后按需整理** 的学习方式。目前按环境、model-based 和 model-free 组织已有代码。
 
@@ -16,7 +16,8 @@ ReinforcementLearning/
 │   ├── envs/
 │   │   └── gridworld.py      # GridWorld 的状态、动作、转移与奖励
 │   ├── model_based_planning.py  # 3A 的策略评估、PI / VI 与 Step 8 对比
-│   └── model_free_planning.py   # 3B 的 MC、TD(0)、SARSA 和 Q-learning
+│   ├── model_free_planning.py   # 3B 的 MC、TD(0)、SARSA 和 Q-learning
+│   └── linear_approximation_demo.py # 3C 的一次线性近似更新
 └── tests/
     ├── test_planning.py            # 3A 检查
     └── test_model_free_planning.py # 3B 手算轨迹检查
@@ -29,6 +30,7 @@ ReinforcementLearning/
 1. 阅读 [当前任务](TASK.md)，确定这次只推进哪一步。
 2. 运行 [3A 模块](rl_tabular/model_based_planning.py) 的 Step 8，比较 PI 和 VI 求得的策略。
 3. 对照 [3B 模块](rl_tabular/model_free_planning.py) 的函数说明和[手算测试](tests/test_model_free_planning.py)，检查每种算法的更新目标。
+4. 运行 [3C 过渡示例](rl_tabular/linear_approximation_demo.py)，观察参数更新和 Q 值变化。可执行代码使用标准库，文件末尾保留 NumPy 版本注释。
 
 `model_based_planning.py` 包含两种策略评估、策略改进、Policy Iteration 和 Value Iteration。Step 8 用 `print_policy()` 在同一个 GridWorld 上显示两种算法的动作、墙与终点奖励，并比较策略字典。
 
@@ -40,10 +42,13 @@ ReinforcementLearning/
 
 ```powershell
 .\.venv\Scripts\python.exe -X utf8 -m rl_tabular.model_based_planning
+.\.venv\Scripts\python.exe -m rl_tabular.linear_approximation_demo
 .\.venv\Scripts\python.exe -m unittest discover -s tests -v
 ```
 
 示例先演示 Bellman backup、策略评估和一次策略改进，最后打印 Step 8 的两张策略网格和 `Same policy: True`。`-X utf8` 让箭头以 UTF-8 输出。
+
+3C 示例使用固定的 `target=5.0`，Q 值由 `3.0` 更新为 `4.0`，参数由 `[2.0, -1.0]` 更新为 `[2.4, -0.8]`。文件中包含对应的数值自检。
 
 等你明确说“帮我整理代码”时，助手再读取实际内容，决定哪些部分值得分开，并同步调用、验证和说明。不会仅因学到新算法就自动拆文件。
 

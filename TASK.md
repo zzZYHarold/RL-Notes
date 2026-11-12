@@ -1,14 +1,15 @@
 # 当前任务与进度
 
-更新日期：2026-11-10
+更新日期：2026-11-12
 
 ## 当前状态
 
 - 模块：RL-3 Tabular RL Lab。
-- 阶段：3B Model-Free Implementation 本地代码整理完成。
+- 阶段：3C Tabular 收尾 → Linear Function Approximation。
 - 3A 代码位于 `rl_tabular/model_based_planning.py`。Step 8 在同一张 GridWorld 上比较 PI 和 VI。
 - 3B 代码位于 `rl_tabular/model_free_planning.py`，已有 First-Visit MC、TD(0)、ε-greedy、SARSA 和 Q-learning。本轮为函数补充数据格式和采样接口说明，并增加手算测试。
 - 环境 `rl_tabular/envs/gridworld.py` 提供 DP 用的 `transitions()`。控制算法通过两步测试环境验证 `reset()` 和 `step(action)` 的交互。
+- 3C 代码位于 `rl_tabular/linear_approximation_demo.py`。用标准库演示一次线性 Q 值预测和 semi-gradient 参数更新，原 NumPy 代码完整保留为注释。
 
 ## 当前工作流
 
@@ -19,11 +20,13 @@
 
 ## 下一次从这里继续
 
-后续按用户提供的学习内容推进。进入 3C 时再确定 GridWorld 的采样接口和实验参数。路线里的 CS188 Q-learning 完成情况尚未核对。
+当前 3C 记录用户提供的单次线性近似更新，后续按用户提供的学习内容推进。原计划中的 GridWorld、Random Walk 和 CliffWalking 对比实验保留为待安排项。路线里的 CS188 Q-learning 完成情况尚未核对。
 
 完整学习顺序见 `docs/rl3_plan.md`，路线不再绑定预建文件。
 
 ## 验证记录
+
+2026-11-12 用已有 `.venv` 运行 `python -B -m rl_tabular.linear_approximation_demo`，数值自检通过。旧 Q 值为 `3.0`，TD error 为 `2.0`，输出更新后参数 `[2.4, -0.8]` 和新 Q 值 `4.0`。已有 10 项单元测试、文档本地链接和 `git diff --check` 均通过。NumPy 注释版保留供阅读，本次执行的是标准库版本。
 
 2026-11-10 整理 3B 后，用已有 `.venv` 运行 `python -B -m unittest discover -s tests -v`，10 项测试全部通过。新增的 3 项检查覆盖 First-Visit MC、TD(0) 的终点与非终点 target，以及同一两步环境下 SARSA 和 Q-learning 的不同 target。测试固定动作序列，验证范围为更新规则。
 
