@@ -2,7 +2,7 @@
 
 ## 项目定位
 
-这是 RL-3 Tabular RL Lab 强化学习代码实操仓库。先读 `README.md`、`TASK.md` 和 `docs/rl3_plan.md`，再处理具体任务。
+这是强化学习代码实操仓库，已有 RL-3 Tabular RL Lab，目前已整理到 RL-4B 的 Experience Replay 与 Target Network。先读根 `README.md`、`TASK.md` 和当前章节的 `README.md`，再处理具体任务。
 
 ## 学习方式
 
@@ -10,6 +10,8 @@
 - 按用户当前学习步骤推进。默认给出小步实现、公式对应和验证，不主动一次写完后续算法；用户明确要求完整实现时，完成其指定范围。
 - 默认采用“先在一个文件里学习和实现，用户要求后再整理”的工作流。不预先创建未来算法的空文件、空目录或包骨架。
 - 用户不需要判断代码该放哪个模块。环境和算法可以暂时写在同一个文件中。目前环境在 `rl_tabular/envs/gridworld.py`，3A 和 3B 的算法分别在 `rl_tabular/model_based_planning.py` 和 `rl_tabular/model_free_planning.py`。
+- RL-4A / 4B 当前代码放在 `rl_deep/q_network_demo.py`，按用户本轮所学内容逐步追加。
+- 学习路线、计划和待办只在 `TASK.md` 维护；知识、公式、环境规则和运行方法放在所属章节的 `README.md`。新增有实际内容的学习章节时同步维护 README，不为环境、测试等子目录重复写 README。
 - 用户仍在推进学习时，不主动拆文件、移动函数、调整类归属或做结构重构；不要因为学到新算法就要求换文件。
 - 每个核心更新语句都要能反向对应数学公式。说明 target、旧值、更新后值各是什么。
 - 保留用户的练习、注释、推导和失败结果；修正问题时说明原因，避免直接覆盖其思考过程。
@@ -25,7 +27,8 @@
 
 ## 实现约定
 
-- 当前阶段不引入深度 RL、机器人项目、通用训练框架、注册器、配置系统或无实际用途的依赖。
+- RL-4 当前已实现单条 transition 更新、Moving Target、Replay batch 更新和 Hard / Soft Update 的固定样本演示。环境训练与 4C 按用户学习进度追加，保持小步实现。
+- NumPy 和 PyTorch 已安装，可适当用库实现；有独立学习价值的 from-scratch 写法保留为注释，不机械复制等价代码。
 - 复用已有 `.venv`。不要为框架重建环境、安装库或改动 `.idea/`。
 - 修改函数前搜索调用点；改动后同步受影响的调用、检查和说明。
 - Python 文件使用 UTF-8、4 空格缩进；文件与函数使用 `snake_case`。优先直白的循环与表，不为少量代码添加抽象。
@@ -33,7 +36,7 @@
 ## RL 约定
 
 - 3A 顺序：GridWorld → Bellman backup → synchronous Policy Evaluation → Value Iteration → Policy Iteration → CS188 Value Iteration。
-- GridWorld 的具体 MDP 约定以 `docs/rl3_plan.md` 为准；不要无声更改奖励、终止条件、状态或折扣。
+- GridWorld 的具体 MDP 约定以 `rl_tabular/README.md` 为准；不要无声更改奖励、终止条件、状态或折扣。
 - DP 使用 `transitions(state, action)` 访问模型；model-free 算法通过采样交互学习，不能调用模型偷看期望。
 - Synchronous backup 的一轮全部读取同一份旧 value table，避免误写成原地更新。
 - terminal reward 在进入终点的转移上领取，terminal 的未来价值为 0，避免重复计算奖励。
@@ -41,6 +44,8 @@
 
 ## 验证与交接
 
+- 不再添加 `assert_close`、`assert_allclose` 这类数值接近断言，也不要换成等价断言绕过此要求；学习示例优先打印结果并对照手算。
+- 测试放在所属学习章节；当前测试位于 `rl_tabular/tests/`，从根目录运行 `python -m unittest discover -s rl_tabular/tests -v`。移动测试时保留内容并确认实际发现的测试数。
 - 用户要求实现或修复非平凡逻辑时，补一个小而有意义的检查，优先验证手算转移、边界、终点和 Bellman 数值。检查可以先放在当前文件中，不强制单独建立测试目录；仅更新文档或清理空文件时不顺带修改学习代码。
 - 不把空脚本成功退出或“发现 0 个测试”当成算法通过。没有运行的检查明确写未运行。
 - 做对比实验时记录环境、随机种子、参数、运行命令和指标；结论来自实际输出，不能预先保证实验现象。
